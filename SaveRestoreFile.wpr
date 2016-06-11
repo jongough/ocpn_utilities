@@ -1,0 +1,21 @@
+#!wing
+#!version=5.0
+##################################################################
+# Wing IDE project file                                          #
+##################################################################
+[project attributes]
+proj.directory-list = [{'dirloc': loc('classes'),
+                        'excludes': (),
+                        'filter': u'*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('.'),
+                        'excludes': [u'ocpn_utilities.conf'],
+                        'filter': '*',
+                        'include_hidden': False,
+                        'recursive': False,
+                        'watch_for_changes': True}]
+proj.file-list = [loc('ocpn_utilities.conf')]
+proj.file-type = 'shared'
+proj.main-file = loc('saverestorefilesimpl.py')
