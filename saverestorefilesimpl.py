@@ -250,10 +250,10 @@ class SaveRestoreFilesImpl ( SaveRestoreFilesDef ):
 			self.errorMsg += 'OpenCPN conf file not found here: ' + paths.home + '/.opencpn/opencpn.conf\n'
 	
 	def saveOPConf(self):
-		if os.path.exists(paths.home + '/.config/openplotter.conf'):
-			shutil.copy2(paths.home +'/.config/openplotter.conf', self.dest)
+		if os.path.exists(paths.home + '/.config/openplotter/openplotter.conf'):
+			shutil.copy2(paths.home +'/.config/openplotter/openplotter.conf', self.dest)
 		else:
-			self.errorMsg += 'Open Plotter conf file not found here: ' + paths.home + '/.config/openplotter.conf\n'
+			self.errorMsg += 'Open Plotter conf file not found here: ' + paths.home + '/.config/openplotter/openplotter.conf\n'
 			
 		
 	def saveOCPNData(self):
@@ -279,7 +279,7 @@ class SaveRestoreFilesImpl ( SaveRestoreFilesDef ):
 	
 	def restoreOPConf(self):
 		if os.path.exists(self.soource + '/openplotter.conf'):
-			shutil.copy2(self.source + '/openplotter.conf', paths.home +'/.config')
+			shutil.copy2(self.source + '/openplotter.conf', paths.home +'/.config/openplotter')
 		else:
 			self.errorMsg += 'Open Plotter conf file not found here: ' + self.source + '/openplotter.conf\n'
 			
@@ -306,6 +306,10 @@ bitmap = wx.Bitmap(paths.currentpath + '/star.jpg', wx.BITMAP_TYPE_JPEG)
 splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT, 500, None, style=wx.SIMPLE_BORDER|wx.STAY_ON_TOP)
 wx.Yield()
 frame = SaveRestoreFilesImpl(None, 'Eclipse Easy-nav Backup/Restore')
+ficon = wx.EmptyIcon()
+ficon.CopyFromBitmap(bitmap)
+frame.SetIcon(ficon)
+
 app.MainLoop()
 		
 
