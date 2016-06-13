@@ -43,22 +43,20 @@ class SaveRestoreFilesImpl ( SaveRestoreFilesDef ):
 		SaveRestoreFilesDef.__init__(self, parent)
 #		conf = Conf()
 #		Language(conf.get('GENERAL','lang'))
-		
+		self.SetTitle(title)
 		self.m_buttonSave.Disable()
 		self.m_buttonRestore.Disable()
 		self.dirSelected = False
 		self.SaveSetSelected = False
 		
-		self.Layout()
-		self.GetSizer().Fit(self)
-		self.Centre( wx.CENTER_ON_SCREEN )
 		self.Show(True)
 	
 	def __del__( self ):
 		pass
-#	
-# Event section
-#
+	#	
+	# Event section
+	#
+
 	def OnCheckBoxAll( self, event ):
 		if self.m_checkBoxAll.IsChecked():
 			self.m_checkBoxOCPNConfig.Disable()
@@ -112,17 +110,12 @@ class SaveRestoreFilesImpl ( SaveRestoreFilesDef ):
 		
 	def OnDirLeftUp( self, event ):
 		testdir = self.m_dirPickerFileDir.GetPath()	
-		print('OnDirLeftUp: ' + testdir)
 		if self.m_dirPickerFileDir.GetPath() != "<none>" :
-			print(testdir)
 			self.dirSelected = True
 			self.SetButtons()
 			
 		SaveRestoreFilesDef.OnDirLeftUp(self, event)
 
-	def OnKillFocus(self, event):
-		print('kill focus: ' + self.m_dirPickerFileDir.GetPath())
-		
 	def OnSaveClick( self, event ):
 		pythons_psutil = []
 		opencpn_found = False
@@ -140,7 +133,7 @@ class SaveRestoreFilesImpl ( SaveRestoreFilesDef ):
 			wx.MessageBox('OpenCPN is running. Please stop it before saving a copy of the configuration file', 'Info', wx.OK | wx.ICON_INFORMATION)
 			return
 		currTimeDate = datetime.today().strftime("%Y%m%d-%H%M%S")
-		self.dest = self.m_dirPickerFileDir.GetPath() + '/' + currTimeDate
+		self.dest = self.m_dirPickerFileDir.GetPath() + '/Easy-nav Backup ' + currTimeDate
 		if not os.path.exists(self.dest):
 			os.makedirs(self.dest)
 		self.errorMsg = ''
@@ -298,18 +291,21 @@ class SaveRestoreFilesImpl ( SaveRestoreFilesDef ):
 					
 	def restorePluginData(self):
 		shutil.copytree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
-		
-app = wx.App(False)
+	
+if __name__ == "__main__":
+	app = wx.App(False)
+	
+	paths = Paths()
+	bitmap = wx.Bitmap(paths.currentpath + '/star.jpg', wx.BITMAP_TYPE_JPEG)
+	# Not needed at the moment as app starts fast
+	#splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT, 500, None, style=wx.SIMPLE_BORDER|wx.STAY_ON_TOP)
+	#wx.Yield()
+	frame = SaveRestoreFilesImpl(None, 'Easy-nav Backup/Restore')
+	ficon = wx.EmptyIcon()
+	ficon.CopyFromBitmap(bitmap)
+	frame.SetIcon(ficon)
+	frame.Raise()
+	
+	app.MainLoop()
 
-paths = Paths()
-bitmap = wx.Bitmap(paths.currentpath + '/star.jpg', wx.BITMAP_TYPE_JPEG)
-splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT, 500, None, style=wx.SIMPLE_BORDER|wx.STAY_ON_TOP)
-wx.Yield()
-frame = SaveRestoreFilesImpl(None, 'Eclipse Easy-nav Backup/Restore')
-ficon = wx.EmptyIcon()
-ficon.CopyFromBitmap(bitmap)
-frame.SetIcon(ficon)
-
-app.MainLoop()
-		
 

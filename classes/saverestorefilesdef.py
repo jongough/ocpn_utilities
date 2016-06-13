@@ -17,7 +17,7 @@ import wx.xrc
 class SaveRestoreFilesDef ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Save and Restore OCPN Files", pos = wx.DefaultPosition, size = wx.Size( 352,305 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Backup/Restore", pos = wx.DefaultPosition, size = wx.Size( 352,305 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		
