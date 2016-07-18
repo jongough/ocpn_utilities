@@ -48,9 +48,14 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         self.m_buttonRestore.Disable()
         self.dirSelected = False
         self.SaveSetSelected = False
-
-        self.Show(True)
-
+            
+        if os.path.exists(paths.home + '/.config/openplotter/openplotter.conf'):
+            self.m_bOpenPlotter = True
+        else:
+            self.m_checkBoxOpenPlotterConfig.Hide()
+            self.m_checkBoxOpenPlotterConfig.Disable()
+            self.m_bOpenPlotter = False
+            
     def __del__(self):
         pass
 
@@ -130,10 +135,16 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             except psutil.Error:
                 pass
 
-        if opencpn_found == True:
-            wx.MessageBox('OpenCPN is running. Please stop it before saving a copy of the configuration file', 'Info',
-                          wx.OK | wx.ICON_INFORMATION)
-            return
+        if self.m_checkBoxAll.IsChecked or self.m_checkBoxOCPNConfig.IsChecked: 
+            if opencpn_found == True:
+                wx.MessageBox('OpenCPN is running. Please stop it before saving a copy of the configuration file', 'Info',
+                              wx.OK | wx.ICON_INFORMATION)
+                return
+        if self.m_checkBoxAll.IsChecked or self.m_checkBoxOpenPlotterConfig.IsChecked: 
+            if openplotter_found == True:
+                wx.MessageBox('OpenPlotter is running. Please stop it before saving a copy of the configuration file', 'Info',
+                              wx.OK | wx.ICON_INFORMATION)
+                return
         currTimeDate = datetime.today().strftime("%Y%m%d-%H%M%S")
         self.dest = self.m_dirPickerFileDir.GetPath() + '/Easy-nav Backup ' + currTimeDate
         if not os.path.exists(self.dest):
@@ -141,7 +152,8 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         self.errorMsg = ''
         if self.m_checkBoxAll.IsChecked():
             self.saveOCPNConf()
-            self.saveOPConf()
+            if self.m_bOpenPlotter:
+                self.saveOPConf()
             self.saveOCPNData()
             self.savePluginData()
         else:
@@ -176,12 +188,12 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                 pass
 
         if opencpn_found == True:
-            wx.MessageBox('OpenCPN is running. Please stop it before restring a copy of the configuration file', 'Info',
+            wx.MessageBox('OpenCPN is running. Please stop it before restoring a copy of the configuration file', 'Info',
                           wx.OK | wx.ICON_INFORMATION)
             opencpn_found = False
             return
         if openplotter_found == True:
-            wx.MessageBox('OpenPlotter is running. Please stop it before restring a copy of the configuration file',
+            wx.MessageBox('OpenPlotter is running. Please stop it before restoring a copy of the configuration file',
                           'Info', wx.OK | wx.ICON_INFORMATION)
             openplotter_found = False
             return
@@ -194,7 +206,8 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         self.errorMsg = ''
         if self.m_checkBoxAll.IsChecked():
             self.restoreOCPNConf()
-            self.restoreOPConf()
+            if self.m_bOpenPlotter:
+                self.restoreOPConf()
             self.restoreOCPNData()
             self.restorePluginData()
         else:
@@ -260,7 +273,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             if 'navobj.xml' in name or 'opencpn.log' in name:
                 try:
                     if not os.path.isdir(paths.home + '/.opencpn/' + name):
-                        shutil.copy2(paths.home + '/.opencpn/' + name, self.dest)
+                        shutil.copy(paths.home + '/.opencpn/' + name, self.dest)
                 except (IOError, os.error) as why:
                     errors.append((srcname, dstname, str(why)))
                 except Error as err:
@@ -290,9 +303,9 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             if 'navobj.xml' in name or 'opencpn.log' in name:
                 try:
                     if not os.path.isdir(self.source + name):
-                        shutil.copy2(self.source + name, paths.home + '/.opencpn/')
+                        shutil.copy(self.source + name, paths.home + '/.opencpn/')
                 except (IOError, os.error) as why:
-                    errors.append((srcname, dstname, str(why)))
+                    errors.append((self.source, paths.home + '/.opencpn/', str(why)))
                 except Error as err:
                     errors.extend(err.args[0])
         if errors:
