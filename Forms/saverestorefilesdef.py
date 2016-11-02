@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Jun 17 2015)
+## Python code generated with wxFormBuilder (version Feb 16 2016)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -120,6 +120,7 @@ class SaveRestoreFilesDef ( wx.Frame ):
 		self.m_buttonSave.Bind( wx.EVT_BUTTON, self.OnSaveClick )
 		self.m_buttonRestore.Bind( wx.EVT_BUTTON, self.OnRestoreClick )
 		self.m_buttonCancel.Bind( wx.EVT_BUTTON, self.OnCancelClick )
+		self.m_staticTextMessage.Bind( wx.EVT_UPDATE_UI, self.OnUpdateTextMessage )
 	
 	def __del__( self ):
 		pass
@@ -151,6 +152,9 @@ class SaveRestoreFilesDef ( wx.Frame ):
 		event.Skip()
 	
 	def OnCancelClick( self, event ):
+		event.Skip()
+	
+	def OnUpdateTextMessage( self, event ):
 		event.Skip()
 	
 

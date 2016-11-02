@@ -27,6 +27,7 @@ import os, sys, shutil, subprocess
 import wx
 import wx.xrc
 import psutil
+from distutils.dir_util import copy_tree
 from datetime import datetime
 from classes.paths import Paths
 from classes.conf import Conf
@@ -111,7 +112,9 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         if self.m_dirPickerFileDir.GetPath() != "<none>":
             self.dirSelected = True
             self.SetButtons()
-
+            
+        self.m_staticTextMessage.SetLabel('')
+        
         SaveRestoreFilesDef.OnDirChanged(self, event)
 
     def OnDirLeftUp(self, event):
@@ -120,6 +123,8 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             self.dirSelected = True
             self.SetButtons()
 
+        self.m_staticTextMessage.SetLabel('')
+            
         SaveRestoreFilesDef.OnDirLeftUp(self, event)
 
     def OnSaveClick(self, event):
@@ -257,6 +262,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
     def saveOCPNConf(self):
         if os.path.exists(paths.home + '/.opencpn/opencpn.conf'):
             shutil.copy2(paths.home + '/.opencpn/opencpn.conf', self.dest)
+            self.m_staticTextMessage.SetLabel('Saved opencpn.conf')
         else:
             self.errorMsg += 'OpenCPN conf file not found here: ' + paths.home + '/.opencpn/opencpn.conf\n'
 
@@ -276,10 +282,8 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                         shutil.copy(paths.home + '/.opencpn/' + name, self.dest)
                 except (IOError, os.error) as why:
                     errors.append((srcname, dstname, str(why)))
-                except Error as err:
-                    errors.extend(err.args[0])
         if errors:
-            raise Error(errors)
+            raise Exception(errors)
 
     def savePluginData(self):
         shutil.copytree(paths.home + '/.opencpn/plugins', self.dest + '/plugins', )
@@ -302,17 +306,15 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         for name in names:
             if 'navobj.xml' in name or 'opencpn.log' in name:
                 try:
-                    if not os.path.isdir(self.source + name):
-                        shutil.copy(self.source + name, paths.home + '/.opencpn/')
+                    if not os.path.isdir(self.source + '/' + name):
+                        shutil.copy(self.source + '/' + name, paths.home + '/.opencpn/')
                 except (IOError, os.error) as why:
                     errors.append((self.source, paths.home + '/.opencpn/', str(why)))
-                except Error as err:
-                    errors.extend(err.args[0])
         if errors:
-            raise Error(errors)
+            raise Exception(errors)
 
     def restorePluginData(self):
-        shutil.copytree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
+        copy_tree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
 
 
 if __name__ == "__main__":
