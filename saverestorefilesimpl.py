@@ -175,9 +175,9 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
 
         if len(self.errorMsg) != 0:
             wx.MessageBox('Errors saving\n' + self.errorMsg, 'Info', wx.OK | wx.ICON_INFORMATION)
-
-        self.m_staticTextMessage.SetLabel('Save process completed')
-        # wx.MessageBox('Save process completed.\n Files stored in directory:\n' + self.dest, 'Info', wx.OK | wx.ICON_INFORMATION )
+            self.m_staticTextMessage.SetLabel('Save process completed with errors')
+        else:
+            self.m_staticTextMessage.SetLabel('Save process completed')
 
         SaveRestoreFilesDef.OnSaveClick(self, event)
 
@@ -231,9 +231,9 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
 
         if len(self.errorMsg) != 0:
             wx.MessageBox('Errors restoring\n' + self.errorMsg, 'Info', wx.OK | wx.ICON_INFORMATION)
-
-        self.m_staticTextMessage.SetLabel('Restore process completed')
-        # wx.MessageBox('Restore process completed.', 'Info', wx.OK | wx.ICON_INFORMATION )
+            self.m_staticTextMessage.SetLabel('Restore process completed with errors')
+        else:
+            self.m_staticTextMessage.SetLabel('Restore process completed')
 
         SaveRestoreFilesDef.OnRestoreClick(self, event)
 
@@ -341,11 +341,14 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             raise Exception(errors)
 
     def restorePluginData(self):
-        self.m_staticTextMessage.SetLabel('Restoring plugin data')
-        wx.Yield()
-        copy_tree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
-        self.m_staticTextMessage.SetLabel('Restored plugin data')
-        wx.Yield()
+        if os.path.exists(self.source + '/plugins'):
+            self.m_staticTextMessage.SetLabel('Restoring plugin data')
+            wx.Yield()
+            copy_tree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
+            self.m_staticTextMessage.SetLabel('Restored plugin data')
+            wx.Yield()
+        else:
+            self.errorMsg += 'Plugin data not found here: ' + self.source + '/plugins\n'
         
     def restoreKPlexConf(self):
         if os.path.exists(self.source + '/.kplex.conf'):
