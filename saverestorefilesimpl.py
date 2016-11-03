@@ -159,6 +159,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             self.saveOCPNConf()
             if self.m_bOpenPlotter:
                 self.saveOPConf()
+                self.saveKPlexConf()
             self.saveOCPNData()
             self.savePluginData()
         else:
@@ -166,6 +167,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                 self.saveOCPNConf()
             if self.m_checkBoxOpenPlotterConfig.IsChecked():
                 self.saveOPConf()
+                self.saveKPlexConf()
             if self.m_checkBoxOCPNData.IsChecked():
                 self.saveOCPNData()
             if self.m_checkBoxPluginData.IsChecked():
@@ -213,6 +215,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             self.restoreOCPNConf()
             if self.m_bOpenPlotter:
                 self.restoreOPConf()
+                self.restoreKPlexConf()
             self.restoreOCPNData()
             self.restorePluginData()
         else:
@@ -220,6 +223,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                 self.restoreOCPNConf()
             if self.m_checkBoxOpenPlotterConfig.IsChecked():
                 self.restoreOPConf()
+                self.restoreKPlexConf()
             if self.m_checkBoxOCPNData.IsChecked():
                 self.restoreOCPNData()
             if self.m_checkBoxPluginData.IsChecked():
@@ -287,6 +291,9 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
 
     def savePluginData(self):
         shutil.copytree(paths.home + '/.opencpn/plugins', self.dest + '/plugins', )
+    
+    def saveKPlexConf(self):
+        shutil.copy2(paths.home + '/.kplex.conf', self.dest)
 
     def restoreOCPNConf(self):
         if os.path.exists(self.source + '/opencpn.conf'):
@@ -315,6 +322,13 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
 
     def restorePluginData(self):
         copy_tree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
+        
+    def restoreKPlexConf(self):
+        if os.path.exists(self.source + '/.kplex.conf'):
+            shutil.copy2(self.source + '/.kplex.conf', paths.home)
+        else:
+            self.errorMsg += 'kplex.conf conf file not found here: ' + self.source + '/.kplex.conf\n'
+        
 
 
 if __name__ == "__main__":
