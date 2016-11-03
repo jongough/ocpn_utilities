@@ -306,16 +306,22 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             shutil.copy2(paths.home + '/.kplex.conf', self.dest)
             self.m_staticTextMessage.SetLabel('Saving .kplex.conf')
             wx.Yield()
+        else:
+            self.errorMsg += 'kplex conf file not found here: ' + paths.home + '/.kplex.conf\n'
 
     def restoreOCPNConf(self):
         if os.path.exists(self.source + '/opencpn.conf'):
             shutil.copy2(self.source + '/opencpn.conf', paths.home + '/.opencpn')
+            self.m_staticTextMessage.SetLabel('Restoring opencpn.conf')
+            wx.Yield()
         else:
             self.errorMsg += 'OpenCPN conf file not found here: ' + self.source + '/opencpn.conf\n'
 
     def restoreOPConf(self):
         if os.path.exists(self.source + '/openplotter.conf'):
             shutil.copy2(self.source + '/openplotter.conf', paths.home + '/.config/openplotter')
+            self.m_staticTextMessage.SetLabel('Restoring openplotter.conf')
+            wx.Yield()
         else:
             self.errorMsg += 'Open Plotter conf file not found here: ' + self.source + '/openplotter.conf\n'
 
@@ -327,17 +333,25 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                 try:
                     if not os.path.isdir(self.source + '/' + name):
                         shutil.copy(self.source + '/' + name, paths.home + '/.opencpn/')
+                        self.m_staticTextMessage.SetLabel('Restoring ' + name)
+                        wx.Yield()
                 except (IOError, os.error) as why:
                     errors.append((self.source, paths.home + '/.opencpn/', str(why)))
         if errors:
             raise Exception(errors)
 
     def restorePluginData(self):
+        self.m_staticTextMessage.SetLabel('Restoring plugin data')
+        wx.Yield()
         copy_tree(self.source + '/plugins', paths.home + '/.opencpn/plugins')
+        self.m_staticTextMessage.SetLabel('Restored plugin data')
+        wx.Yield()
         
     def restoreKPlexConf(self):
         if os.path.exists(self.source + '/.kplex.conf'):
             shutil.copy2(self.source + '/.kplex.conf', paths.home)
+            self.m_staticTextMessage.SetLabel('Restoring .kplex.conf')
+            wx.Yield()
         else:
             self.errorMsg += 'kplex.conf conf file not found here: ' + self.source + '/.kplex.conf\n'
         
