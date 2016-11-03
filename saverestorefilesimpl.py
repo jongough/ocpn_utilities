@@ -267,12 +267,15 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         if os.path.exists(paths.home + '/.opencpn/opencpn.conf'):
             shutil.copy2(paths.home + '/.opencpn/opencpn.conf', self.dest)
             self.m_staticTextMessage.SetLabel('Saved opencpn.conf')
+            wx.Yield()
         else:
             self.errorMsg += 'OpenCPN conf file not found here: ' + paths.home + '/.opencpn/opencpn.conf\n'
 
     def saveOPConf(self):
         if os.path.exists(paths.home + '/.config/openplotter/openplotter.conf'):
             shutil.copy2(paths.home + '/.config/openplotter/openplotter.conf', self.dest)
+            self.m_staticTextMessage.SetLabel('Saved openplotter.conf')
+            wx.Yield()
         else:
             self.errorMsg += 'Open Plotter conf file not found here: ' + paths.home + '/.config/openplotter/openplotter.conf\n'
 
@@ -284,16 +287,25 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                 try:
                     if not os.path.isdir(paths.home + '/.opencpn/' + name):
                         shutil.copy(paths.home + '/.opencpn/' + name, self.dest)
+                        self.m_staticTextMessage.SetLabel('Saved ' + name)
+                        wx.Yield()
                 except (IOError, os.error) as why:
                     errors.append((srcname, dstname, str(why)))
         if errors:
             raise Exception(errors)
 
     def savePluginData(self):
+        self.m_staticTextMessage.SetLabel('Saving plugin data')
+        wx.Yield()
         shutil.copytree(paths.home + '/.opencpn/plugins', self.dest + '/plugins', )
+        self.m_staticTextMessage.SetLabel('Saved plugin data')
+        wx.Yield()
     
     def saveKPlexConf(self):
-        shutil.copy2(paths.home + '/.kplex.conf', self.dest)
+        if os.path.exists(paths.home + '/.kplex.conf'):
+            shutil.copy2(paths.home + '/.kplex.conf', self.dest)
+            self.m_staticTextMessage.SetLabel('Saving .kplex.conf')
+            wx.Yield()
 
     def restoreOCPNConf(self):
         if os.path.exists(self.source + '/opencpn.conf'):
