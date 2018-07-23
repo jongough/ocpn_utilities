@@ -1,5 +1,5 @@
 #!wing
-#!version=5.0
+#!version=6.0
 ##################################################################
 # Wing IDE project file                                          #
 ##################################################################
@@ -19,4 +19,7 @@ proj.directory-list = [{'dirloc': loc('classes'),
                         'watch_for_changes': True}]
 proj.file-list = [loc('ocpn_utilities.conf')]
 proj.file-type = 'shared'
+proj.launch-config = {loc('saverestorefilesimpl.py'): ('project',
+        (u'macallife',
+         ''))}
 proj.main-file = loc('saverestorefilesimpl.py')

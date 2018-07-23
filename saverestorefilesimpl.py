@@ -273,11 +273,18 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
 
     def saveOPConf(self):
         if os.path.exists(paths.home + '/.config/openplotter/openplotter.conf'):
-            shutil.copy2(paths.home + '/.config/openplotter/openplotter.conf', self.dest)
-            self.m_staticTextMessage.SetLabel('Saved openplotter.conf')
+            shutil.copy2(paths.home + '/.config/openplotter/openplotter.conf', self.dest + '/openplotter.conf.config')
+            self.m_staticTextMessage.SetLabel('Saved .config/openplotter/openplotter.conf')
             wx.Yield()
         else:
-            self.errorMsg += 'Open Plotter conf file not found here: ' + paths.home + '/.config/openplotter/openplotter.conf\n'
+            self.errorMsg += 'Open Plotter .config/openplotter/openplotter.conf file not found here: ' + paths.home + '/.config/openplotter/openplotter.conf\n'
+
+        if os.path.exists(paths.home + '/.openplotter/openplotter.conf'):
+            shutil.copy2(paths.home + '/.openplotter/openplotter.conf', self.dest + '/openplotter.conf.openplotter')
+            self.m_staticTextMessage.SetLabel('Saved .openplotter/openplotter.conf')
+            wx.Yield()
+        else:
+            self.errorMsg += 'Open Plotter .openplotter/openplotter.conf file not found here: ' + paths.home + '/.openplotter/openplotter.conf\n'
 
     def saveOCPNData(self):
         names = os.listdir(paths.home + '/.opencpn')
@@ -318,12 +325,19 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             self.errorMsg += 'OpenCPN conf file not found here: ' + self.source + '/opencpn.conf\n'
 
     def restoreOPConf(self):
-        if os.path.exists(self.source + '/openplotter.conf'):
-            shutil.copy2(self.source + '/openplotter.conf', paths.home + '/.config/openplotter')
-            self.m_staticTextMessage.SetLabel('Restoring openplotter.conf')
+        if os.path.exists(self.source + '/openplotter.conf.config'):
+            shutil.copy2(self.source + '/openplotter.conf.config', paths.home + '/.config/openplotter/openplotter.conf')
+            self.m_staticTextMessage.SetLabel('Restoring .config/openplotter/openplotter.conf')
             wx.Yield()
         else:
-            self.errorMsg += 'Open Plotter conf file not found here: ' + self.source + '/openplotter.conf\n'
+            self.errorMsg += 'Open Plotter .config/openplotter/openplotter.conf file not found here: ' + self.source + '/openplotter.conf.config\n'
+
+        if os.path.exists(self.source + '/openplotter.conf.openplotter'):
+            shutil.copy2(self.source + '/openplotter.conf.openplotter', paths.home + '/.openplotter/openplotter.conf')
+            self.m_staticTextMessage.SetLabel('Restoring .openplotter/openplotter.conf')
+            wx.Yield()
+        else:
+            self.errorMsg += 'Open Plotter .openplotter/openplotter.conf file not found here: ' + self.source + '/openplotter.conf.openplotter\n'
 
     def restoreOCPNData(self):
         names = os.listdir(self.source)
