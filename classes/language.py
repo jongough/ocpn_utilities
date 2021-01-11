@@ -23,7 +23,7 @@
 #
 # Built with the assistance of Wing IDE ( http://wingware.com )
 import gettext
-from paths import Paths
+from pathlib import Path
 
 class Language:
 

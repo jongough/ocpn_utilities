@@ -23,8 +23,8 @@
 #
 # Built with the assistance of Wing IDE ( http://wingware.com )
 
-import ConfigParser
-from paths import Paths
+import configparser
+from pathlib import Path
 
 class Conf:
 

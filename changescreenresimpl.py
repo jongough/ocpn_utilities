@@ -4,6 +4,7 @@
 # 
 # Project:  OpenCPN
 # Purpose:  Raspberry PI OpenCPN config files save/restore
+# Version:  1.1
 # Author:   Jon Gough
 #
 # This file is part of OpenCPN Raspberry PI Utilities.
@@ -47,7 +48,7 @@ class ChangeScreenResImpl(ChangeScreenResDef):
         self.SetTitle(title)
 
         self.Screens = {}
-        self.Screens = ['800x600','1024x520','1024x768','1024x600','1152x864','1280x720','1280x800','1280x1024',\
+        self.Screens = ['AutoxAuto','800x600','1024x520','1024x768','1024x600','1152x864','1280x720','1280x800','1280x1024',\
                         '1360x768','1366x768','1440x900','1536x864','1600x1200','1600x900','1680x1050',\
                         '1920x1200','1920x1080','2560x1600','2560x1440','3840x2160']
                         
@@ -119,7 +120,6 @@ class ChangeScreenResImpl(ChangeScreenResDef):
         ans = wx.MessageBox("To change screen size you need to reboot.\nDo you want to reboot now?", "Reboot?", wx.YES_NO)
         if ans == wx.YES:
             self.restart()
-        ChangeScreenResDef.OnSaveClick(self,event)
 
     def OnKillFocus(self, event):
         width = self.m_textCtrlScreenWidth.GetValue()
@@ -141,24 +141,19 @@ class ChangeScreenResImpl(ChangeScreenResDef):
             configFile = '/boot/config.txt'
             newConfigFile = '/boot/config.txt.new'
             newConfFile = open(newConfigFile, 'w')
-            foundPlotter = False
             with open(configFile, 'r') as confFile:
                 for line in confFile:
-                    if '[OPENPLOTTER]' in line:
-                        foundPlotter = True
-                        newConfFile.write(line)
-                        continue
-                    if foundPlotter == True and 'framebuffer_width' in line:
-                        if line[0] == '#':
-                            newConfFile.write(line)
+                    if 'framebuffer_width' in line:
+                        if self.m_textCtrlScreenWidth.GetValue() == 'Auto':
+                            newConfFile.write('#framebuffer_width=Auto\n')
                             continue
                         else:
                             newConfFile.write('framebuffer_width=' + self.m_textCtrlScreenWidth.GetValue() + '\n')
                             foundWidth = True
                             continue
-                    if foundPlotter == True and 'framebuffer_height' in line:
-                        if line[0] == '#':
-                            newConfFile.write(line)
+                    if 'framebuffer_height' in line:
+                        if self.m_textCtrlScreenHeight.GetValue() == 'Auto':
+                            newConfFile.write('#framebuffer_height=Auto\n')
                             continue
                         else:
                             newConfFile.write('framebuffer_height=' + self.m_textCtrlScreenHeight.GetValue() + '\n')
@@ -179,30 +174,30 @@ class ChangeScreenResImpl(ChangeScreenResDef):
         #if os.path.exists(paths.home + '/config.txt'):
         if os.path.exists('/boot/config.txt'):
             configFile = '/boot/config.txt'
-            foundPlotter = False
             foundWidth = False
             foundHeight = False
             with open(configFile, 'r') as confFile:
                 for line in confFile:
                     line = line.rstrip('\n').rstrip('\r')
-                    if line == '[OPENPLOTTER]':
-                        foundPlotter = True
-                        continue
-                    if foundPlotter == True and 'framebuffer_width' in line:
+                    if 'framebuffer_width' in line:
                         if line[0] == '#':
+                            self.framebuffer_width = "Auto"
+                            foundWidth = True
                             continue
                         else:
                             self.framebuffer_width = line[line.find('=')+1:]
                             foundWidth = True
                             continue
-                    if foundPlotter == True and 'framebuffer_height' in line:
+                    if 'framebuffer_height' in line:
                         if line[0] == '#':
+                            self.framebuffer_height = "Auto"
+                            foundHeight = True
                             continue
                         else:
                             self.framebuffer_height = line[line.find('=')+1:]
                             foundHeight = True
                             continue
-                    if foundPlotter and foundWidth and foundHeight:
+                    if foundWidth and foundHeight:
                         break
                 confFile.close()
         else:
@@ -216,7 +211,7 @@ class ChangeScreenResImpl(ChangeScreenResDef):
         import subprocess
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
         output = process.communicate()[0]
-        print output
+        print(output)
 
 if __name__ == "__main__":
     app = wx.App(False)

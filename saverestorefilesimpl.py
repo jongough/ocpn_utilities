@@ -24,6 +24,7 @@
 # Built with the assistance of Wing IDE ( http://wingware.com )
 
 import os, sys, shutil, subprocess
+import glob
 import wx
 import wx.xrc
 import psutil
@@ -159,6 +160,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             self.saveOCPNConf()
             if self.m_bOpenPlotter:
                 self.saveOPConf()
+                self.saveSKConf()
                 self.saveKPlexConf()
             self.saveOCPNData()
             self.savePluginData()
@@ -168,6 +170,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             if self.m_checkBoxOpenPlotterConfig.IsChecked():
                 self.saveOPConf()
                 self.saveKPlexConf()
+                self.saveSKConf()
             if self.m_checkBoxOCPNData.IsChecked():
                 self.saveOCPNData()
             if self.m_checkBoxPluginData.IsChecked():
@@ -185,12 +188,19 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         pythons_psutil = []
         opencpn_found = False
         openplotter_found = False
+        openplotter_serial_found = False
+        signalk_found = False
         for p in psutil.process_iter():
             try:
                 if p.name() == 'opencpn':
                     opencpn_found = True
                 if p.name() == 'openplotter':
                     openplotter_found = True
+                if p.name() == 'openplotter-serial':
+                    openplotter_serial_found = True
+                if p.name() == 'signalk-server':
+                    signalk_found = True
+                    
             except psutil.Error:
                 pass
 
@@ -204,6 +214,15 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                           'Info', wx.OK | wx.ICON_INFORMATION)
             openplotter_found = False
             return
+        if openplotter_serial_found == True:
+            wx.MessageBox('Serial is running. Please stop it before restoring a copy of the configuration file',
+                          'Info', wx.OK | wx.ICON_INFORMATION)
+            openplotter_serial_found = False
+            return
+        if signalk_found == True:
+            wx.MessageBox('SignalK is running. Please restart it after restoring a copy of the configuration file',
+                          'Info', wx.OK | wx.ICON_INFORMATION)
+            signalk_found = False
 
         self.source = self.m_dirPickerFileDir.GetPath()
         if not os.path.exists(self.source):
@@ -215,6 +234,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
             self.restoreOCPNConf()
             if self.m_bOpenPlotter:
                 self.restoreOPConf()
+                self.restoreSKConf()
                 self.restoreKPlexConf()
             self.restoreOCPNData()
             self.restorePluginData()
@@ -223,6 +243,7 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
                 self.restoreOCPNConf()
             if self.m_checkBoxOpenPlotterConfig.IsChecked():
                 self.restoreOPConf()
+                self.restoreSKConf()
                 self.restoreKPlexConf()
             if self.m_checkBoxOCPNData.IsChecked():
                 self.restoreOCPNData()
@@ -308,6 +329,25 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         self.m_staticTextMessage.SetLabel('Saved plugin data')
         wx.Yield()
     
+    def saveSKConf(self):
+        if os.path.exists(paths.home + '/.signalk/settings.json'):
+            json_path = paths.home + '/.signalk/*.json'
+            names = glob.glob(paths.home + '/.signalk/*.json')
+            dest_path = self.dest + '/.signalk/'
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            errors = []
+            for name in names:
+                shutil.copy2(name, dest_path)
+            if errors:
+                raise Exception(errors)
+            
+            shutil.copy2(paths.home + '/.signalk/signalk-server', dest_path)
+            shutil.copytree(paths.home + '/.signalk/plugin-config-data', dest_path + '/plugin-config-data', )
+            self.m_staticTextMessage.SetLabel('Saving .signalk settings')
+            wx.Yield()
+        else:
+            self.errorMsg += 'SignalK conf files not found here: ' + paths.home + '/.signalk\n'
+
     def saveKPlexConf(self):
         if os.path.exists(paths.home + '/.kplex.conf'):
             shutil.copy2(paths.home + '/.kplex.conf', self.dest)
@@ -364,13 +404,37 @@ class SaveRestoreFilesImpl(SaveRestoreFilesDef):
         else:
             self.errorMsg += 'Plugin data not found here: ' + self.source + '/plugins\n'
         
+    def restoreSKConf(self):
+        if os.path.exists(self.source + '/.signalk/settings.json'):
+            names = glob.glob(self.source + '/.signalk/*.json')
+            dest_path = paths.home + '/.signalk/'
+            errors = []
+            for name in names:
+                shutil.copy2(name, dest_path)
+            if errors:
+                raise Exception(errors)
+            
+            shutil.copy2(self.source + '/.signalk/signalk-server', dest_path)
+            #shutil.copytree(self.source + '/.signalk/plugin-config-data', dest_path + '/plugin-config-data', dirs_exist_ok=False)
+            names = glob.glob(self.source + '/.signalk/plugin-config-data/*')
+            errors = []
+            for name in names:
+                shutil.copy2(name, dest_path + 'plugin-config-data/')
+            if errors:
+                raise Exception(errors)
+            
+            self.m_staticTextMessage.SetLabel('Restoring .signalk settings')
+            wx.Yield()
+        else:
+            self.errorMsg += 'SignalK conf files not found here: ' + paths.home + '/.signalk\n'
+
     def restoreKPlexConf(self):
         if os.path.exists(self.source + '/.kplex.conf'):
             shutil.copy2(self.source + '/.kplex.conf', paths.home)
             self.m_staticTextMessage.SetLabel('Restoring .kplex.conf')
             wx.Yield()
-        else:
-            self.errorMsg += 'kplex.conf conf file not found here: ' + self.source + '/.kplex.conf\n'
+        #else:
+         #   self.errorMsg += 'kplex.conf conf file not found here: ' + self.source + '/.kplex.conf\n'
         
 
 
@@ -383,7 +447,7 @@ if __name__ == "__main__":
     # splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT, 500, None, style=wx.SIMPLE_BORDER|wx.STAY_ON_TOP)
     # wx.Yield()
     frame = SaveRestoreFilesImpl(None, 'Easy-nav Backup/Restore')
-    ficon = wx.EmptyIcon()
+    ficon = wx.Icon()
     ficon.CopyFromBitmap(bitmap)
     frame.SetIcon(ficon)
     frame.Raise()
